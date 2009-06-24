@@ -8,8 +8,15 @@ has is_evaluated => (is => "rw", isa => "Bool");
 has evaluated_result => (is => "rw");
 
 has delayed => (is => "ro", isa => "CodeRef");
-
-use overload '&{}' => \&execute;
+BEGIN {
+use overload (
+        fallback => 1,
+        '&{}' => sub { my $self = shift; sub { $self->execute } },
+        map {
+            $_ => \&execute
+        } qw( bool "" 0+ )
+    );
+}
 
 sub execute {
     my ($self) = @_;
@@ -17,7 +24,7 @@ sub execute {
         $self->evaluated_result( $self->delayed->($self->env) );
         $self->is_evaluated(1);
     }
-    return sub { $self->evaluated_result }
+    return $self->evaluated_result;
 }
 
 __PACKAGE__->meta->make_immutable;

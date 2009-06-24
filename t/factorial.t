@@ -19,7 +19,7 @@ $env->set_symbol('factorial', $proc);
 
 $env->set_symbol('if' => bless sub {
                      my ($predicate, $true, $false) = @_;
-                     return $predicate->() ? $true->() : $false->();
+                     return $predicate ? $true : $false;
                  }, 'LCore::Lazy' );
 $env->set_symbol('-' => bless sub {
                      return $_[0] - $_[1];
