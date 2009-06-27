@@ -40,9 +40,7 @@ sub analyze_application {
 
     return sub {
         my $env = shift;
-        my $o = $operator->($env);# or die "can't find operator";
-
-        # clean up later.
+        my $o = $operator->($env) or die "can't find operator";
 
         my $lazy = $o->isa('LCore::Primitive') ? 0 : 1;
 
@@ -50,17 +48,7 @@ sub analyze_application {
             ? map { LCore::Thunk->new( env => $env, delayed => $_ ) } @args
             : map { $_->($env) } @args;
 
-        # eager
-        if ($o->isa('LCore::Primitive') || $o->isa('LCore::Lazy')) {
-            return $o->(@a);
-        }
-
-        if ($o->isa('LCore::Procedure')) {
-            die "argument number mismatch" if $#{$o->parameters} ne $#a;
-            my %args = map { $_ => shift @a } @{$o->parameters};
-            return $o->body->($env->extend(\%args));
-        }
-        die 'unknown application';
+        return $o->(@a);
     }
 
 }

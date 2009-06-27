@@ -5,10 +5,19 @@ has env => (is => "ro", isa => "LCore::Env");
 has body => (is => "ro", isa => "CodeRef");
 has parameters => (is => "ro", isa => "ArrayRef");
 
-use overload '&{}' => \&execute;
+BEGIN {
+use overload (
+        fallback => 1,
+        '&{}' => sub { my $self = shift; sub { $self->apply(@_) } },
+    );
+}
 
-sub execute {
-    my $self = shift;
+sub apply {
+    my ($self, @args) = @_;
+
+    die "argument number mismatch" if $#{$self->parameters} ne $#args;
+    my %args = map { $_ => shift @args } @{$self->parameters};
+    return $self->body->($self->env->extend(\%args));
 }
 
 __PACKAGE__->meta->make_immutable;
