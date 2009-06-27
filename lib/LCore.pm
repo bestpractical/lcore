@@ -8,7 +8,9 @@ my $ds = Data::SExpression->new({use_symbol_class=>1,
                                  fold_alists => 1,
                              });
 
-our $global_env = LCore::Env->new();
+my $global_env = LCore::Env->new();
+
+sub global_env { $global_env };
 
 sub is_self_evaluating {
     my ($self, $exp) = @_;
@@ -38,7 +40,7 @@ sub analyze_application {
 
     return sub {
         my $env = shift;
-        my $o = $operator->($env);
+        my $o = $operator->($env);# or die "can't find operator";
 
         # clean up later.
 
