@@ -4,6 +4,7 @@ use Moose;
 has env => (is => "ro", isa => "LCore::Env");
 has body => (is => "ro", isa => "CodeRef");
 has parameters => (is => "ro", isa => "ArrayRef");
+has lazy => (is => "ro", isa => "Bool", default => sub { 1 });
 
 BEGIN {
 use overload (

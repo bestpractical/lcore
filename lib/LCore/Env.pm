@@ -66,9 +66,7 @@ sub analyze_application {
         my $env = shift;
         my $o = $operator->($env) or die "can't find operator";
 
-        my $lazy = $o->isa('LCore::Primitive') ? 0 : 1;
-
-        my @a = $lazy
+        my @a = $o->lazy
             ? map { ref $_ ? LCore::Thunk->new( env => $env, delayed => $_ ): $_ } @args
             : map { $_->($env) } @args;
 

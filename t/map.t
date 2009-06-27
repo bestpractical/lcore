@@ -14,9 +14,10 @@ my $proc = LCore::Procedure->new( { env => $l->env,
                                     parameters => ['n'] } );
 
 $l->env->set_symbol('square', $proc);
-$l->env->set_symbol('*' => bless sub {
-                        return $_[0] * $_[1];
-                    }, 'LCore::Primitive' );
+$l->env->set_symbol('*' => LCore::Primitive->new
+                        ( body => sub {
+                              return $_[0] * $_[1];
+                          }));
 
 is_deeply($l->analyze_it(q{(map square (list 5 (* 1 6) 7))})->($l->env), [25, 36, 49]);
 

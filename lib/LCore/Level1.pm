@@ -1,6 +1,7 @@
 package LCore::Level1;
 use Moose;
 use LCore;
+use LCore::Primitive;
 use MooseX::ClassAttribute;
 
 extends 'LCore::Env';
@@ -36,22 +37,23 @@ sub analyze_lambda {
 sub BUILD {
     my ($self, $params) = @_;
 
-    $self->set_symbol('if' =>
-                          bless sub {
-                              my ($predicate, $true, $false) = @_;
-                              return $predicate ? $true : $false;
-                          }, 'LCore::Lazy' );
+    $self->set_symbol('if' => LCore::Primitive->new
+                          ( body => sub {
+                                my ($predicate, $true, $false) = @_;
+                                return $predicate ? $true : $false;
+                            }));
 
-    $self->set_symbol('list' =>
-                          bless sub {
+    $self->set_symbol('list' => LCore::Primitive->new
+                          ( body => sub {
                               return [@_];
-                          }, 'LCore::Lazy' );
+                          }));
 
-    $self->set_symbol('map' =>
-                          bless sub {
-                              my ($func, $list) = @_;
-                              return [map {$func->($_)} @$list];
-                          }, 'LCore::Primitive' );
+    $self->set_symbol('map' => LCore::Primitive->new
+                          ( lazy => 0,
+                            body => sub {
+                                my ($func, $list) = @_;
+                                return [map {$func->($_)} @$list];
+                            }));
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -19,14 +19,17 @@ my $proc = LCore::Procedure->new( { env => $env,
 
 $env->set_symbol('factorial', $proc);
 
-$env->set_symbol('-' => bless sub {
-                     return $_[0] - $_[1];
-                 }, 'LCore::Primitive' );
-$env->set_symbol('*' => bless sub {
-                     return $_[0] * $_[1];
-                 }, 'LCore::Primitive' );
-$env->set_symbol('=' => bless sub {
-                     return $_[0] == $_[1];
-                 }, 'LCore::Primitive' );
+$env->set_symbol('-' => LCore::Primitive->new
+                        ( body => sub {
+                              return $_[0] - $_[1];
+                          }));
+$env->set_symbol('*' => LCore::Primitive->new
+                        ( body => sub {
+                              return $_[0] * $_[1];
+                          }));
+$env->set_symbol('=' => LCore::Primitive->new
+                        ( body => sub {
+                              return $_[0] == $_[1];
+                          }));
 
 is($l->analyze_it(q{(factorial 5)})->($env), 120);
