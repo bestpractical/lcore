@@ -1,6 +1,13 @@
 package LCore::Env;
 use Moose;
 use MooseX::AttributeHelpers;
+use MooseX::ClassAttribute;
+
+class_has 'analyzers' => (
+    is => 'ro',
+    isa => 'ArrayRef',
+    default => sub { [ qw(self_evaluating variable application)] },
+);
 
 has parent => (is => "ro", isa => "LCore::Env");
 
@@ -30,6 +37,57 @@ sub extend {
     my $self = shift;
     my $vars = shift;
     return __PACKAGE__->new( symbols => { %$vars }, parent => $self );
+}
+
+sub analyze_self_evaluating {
+    my ($self, $exp) = @_;
+    return if ref($exp);
+
+    return sub { $exp };
+}
+
+sub analyze_variable {
+    my ($self, $exp) = @_;
+    return unless (ref($exp) && ref($exp) eq 'Data::SExpression::Symbol');
+
+    return sub { my $env = shift; $env->get_value($exp) };
+}
+
+sub analyze_application {
+    my ($self, $exp) = @_;
+
+    return unless ref($exp) eq 'ARRAY';
+
+    my ($op, @exp) = @$exp;
+    my $operator = $self->analyze($op);
+    my @args = map { $self->analyze($_) } @exp;
+
+    return sub {
+        my $env = shift;
+        my $o = $operator->($env) or die "can't find operator";
+
+        my $lazy = $o->isa('LCore::Primitive') ? 0 : 1;
+
+        my @a = $lazy
+            ? map { ref $_ ? LCore::Thunk->new( env => $env, delayed => $_ ): $_ } @args
+            : map { $_->($env) } @args;
+
+        return $o->(@a);
+    }
+
+}
+
+sub analyze {
+    my ($self, $exp) = @_;
+    my $result;
+
+    my @expression_type = @{$self->analyzers};
+    for (@expression_type) {
+        my $func = $self->can("analyze_$_");
+        my $ret = $self->$func( $exp );
+        return $ret if $ret;
+    }
+    die "unknown expression type".Dumper($exp);use Data::Dumper;
 }
 
 __PACKAGE__->meta->make_immutable;

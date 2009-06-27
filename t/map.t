@@ -5,16 +5,17 @@ use LCore::Level1;
 use Data::Dumper;
 use LCore::Procedure;
 
-my $x = LCore->analyze_it(q{(* n n)});
+my $l = LCore->new( env => LCore::Level1->new );
 
-my $env = LCore::Level1->new;
-my $proc = LCore::Procedure->new( { env => $env,
+my $x = $l->analyze_it(q{(* n n)});
+
+my $proc = LCore::Procedure->new( { env => $l->env,
                                     body => $x,
                                     parameters => ['n'] } );
 
-$env->set_symbol('square', $proc);
-$env->set_symbol('*' => bless sub {
-                     return $_[0] * $_[1];
-                 }, 'LCore::Primitive' );
+$l->env->set_symbol('square', $proc);
+$l->env->set_symbol('*' => bless sub {
+                        return $_[0] * $_[1];
+                    }, 'LCore::Primitive' );
 
-is_deeply(LCore->analyze_it(q{(map square (list 5 (* 1 6) 7))})->($env), [25, 36, 49]);
+is_deeply($l->analyze_it(q{(map square (list 5 (* 1 6) 7))})->($l->env), [25, 36, 49]);
