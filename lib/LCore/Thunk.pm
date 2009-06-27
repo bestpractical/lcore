@@ -11,14 +11,14 @@ has delayed => (is => "ro", isa => "CodeRef");
 BEGIN {
 use overload (
         fallback => 1,
-        '&{}' => sub { my $self = shift; sub { $self->execute } },
+        '&{}' => sub { my $self = shift; sub { $self->force } },
         map {
-            $_ => \&execute
+            $_ => \&force
         } qw( bool "" 0+ )
     );
 }
 
-sub execute {
+sub force {
     my ($self) = @_;
     unless ($self->is_evaluated) {
         $self->evaluated_result( $self->delayed->($self->env) );
