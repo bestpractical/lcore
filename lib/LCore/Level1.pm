@@ -14,6 +14,17 @@ sub BUILD {
                               my ($predicate, $true, $false) = @_;
                               return $predicate ? $true : $false;
                           }, 'LCore::Lazy' );
+
+    $self->set_symbol('list' =>
+                          bless sub {
+                              return [@_];
+                          }, 'LCore::Lazy' );
+
+    $self->set_symbol('map' =>
+                          bless sub {
+                              my ($func, $list) = @_;
+                              return [map {$func->($_)} @$list];
+                          }, 'LCore::Primitive' );
 }
 
 __PACKAGE__->meta->make_immutable;

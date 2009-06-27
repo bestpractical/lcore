@@ -45,7 +45,7 @@ sub analyze_application {
         my $lazy = $o->isa('LCore::Primitive') ? 0 : 1;
 
         my @a = $lazy
-            ? map { LCore::Thunk->new( env => $env, delayed => $_ ) } @args
+            ? map { ref $_ ? LCore::Thunk->new( env => $env, delayed => $_ ): $_ } @args
             : map { $_->($env) } @args;
 
         return $o->(@a);
