@@ -40,23 +40,22 @@ sub analyze_application {
         my $env = shift;
         my $o = $operator->($env);
 
-        # eager
-        if ($o->isa('LCore::Primitive')) {
-            my @a = map { $_->($env) } @args;
-            return $o->(@a);
-        }
+        # clean up later.
 
-        # lazy
-        if ($o->isa('LCore::Lazy')) {
-            my @a = map { LCore::Thunk->new( env => $env, delayed => $_ ) } @args;
+        my $lazy = $o->isa('LCore::Primitive') ? 0 : 1;
+
+        my @a = $lazy
+            ? map { LCore::Thunk->new( env => $env, delayed => $_ ) } @args
+            : map { $_->($env) } @args;
+
+        # eager
+        if ($o->isa('LCore::Primitive') || $o->isa('LCore::Lazy')) {
             return $o->(@a);
         }
 
         if ($o->isa('LCore::Procedure')) {
-            my @a = map { $_->($env) } @args;
             die "argument number mismatch" if $#{$o->parameters} ne $#a;
             my %args = map { $_ => shift @a } @{$o->parameters};
-#            warn Dumper(\%args);
             return $o->body->($env->extend(\%args));
         }
         die 'unknown application';
