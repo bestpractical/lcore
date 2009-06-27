@@ -1,0 +1,20 @@
+level 0:
+  - evaluator: analyzer / applicator
+  - environment
+  - thunk
+
+level 1:
+  - builtin control flow: if, map, iterator
+  - hooks for changing analzyer / applicator behaviour
+
+level 2.1:
+  - type library: bool
+
+level 2.2:
+  - type library: str, numbers
+  - type check in analyzer phase
+    - determine type info as early as possible
+  - currying
+
+level 3:
+  - custom types
