@@ -16,6 +16,8 @@ use overload (
 
 sub BUILD {
     my ($self, $params) = @_;
+    return unless ref($self->body) eq 'LCore::Expression::Application';
+    # this belongs to "guess type from LCore::Expression::Application"
     my $operator = $self->body->operator;
     if (ref($operator) eq 'LCore::Expression::Variable') {
         my $symbol = $self->env->get_symbol($operator->name)

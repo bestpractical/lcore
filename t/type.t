@@ -39,4 +39,4 @@ my $proc = LCore::Procedure->new( { env => $l->env,
                                     parameters => ['n'] } );
 
 is($proc->return_type, 'Num', "return type derived");
-# XXX: check implicit type for $proc and n
+
