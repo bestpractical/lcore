@@ -2,6 +2,8 @@ package LCore::Env;
 use Moose;
 use MooseX::AttributeHelpers;
 use MooseX::ClassAttribute;
+use LCore::Expression::Variable;
+use LCore::Expression::SelfEvaluating;
 
 class_has 'analyzers' => (
     is => 'ro',
@@ -43,14 +45,20 @@ sub analyze_self_evaluating {
     my ($self, $exp) = @_;
     return if ref($exp);
 
-    return sub { $exp };
+    return LCore::Expression::SelfEvaluating->new( code => sub { $exp },
+                                                   value => $exp );
 }
+
 
 sub analyze_variable {
     my ($self, $exp) = @_;
     return unless (ref($exp) && ref($exp) eq 'Data::SExpression::Symbol');
 
-    return sub { my $env = shift; $env->get_value($exp) };
+    return LCore::Expression::Variable->new
+        ( name => "$exp",
+          code => sub { my $env = shift;
+                        $env->get_value($exp);
+                    } );
 }
 
 sub analyze_application {

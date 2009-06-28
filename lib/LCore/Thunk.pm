@@ -7,7 +7,7 @@ has is_evaluated => (is => "rw", isa => "Bool");
 
 has evaluated_result => (is => "rw");
 
-has delayed => (is => "ro", isa => "CodeRef");
+has delayed => (is => "ro");#, isa => "CodeRef");
 BEGIN {
 use overload (
         fallback => 1,
