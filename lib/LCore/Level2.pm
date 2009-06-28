@@ -32,6 +32,8 @@ sub analyze_application {
         }
     }
     return LCore::Expression::Application->new(
+        operator => $operator,
+        operands => \@args,
         code => sub {
         my $env = shift;
         my $o = $operator->($env) or die "can't find operator";

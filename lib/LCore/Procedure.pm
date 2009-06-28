@@ -4,6 +4,7 @@ use Moose;
 has env => (is => "ro", isa => "LCore::Env");
 has body => (is => "ro", isa => "CodeRef|LCore::Expression");
 has parameters => (is => "ro", isa => "ArrayRef");
+has return_type => (is => "rw", isa => "Str");
 has lazy => (is => "ro", isa => "Bool", default => sub { 1 });
 
 BEGIN {
@@ -11,6 +12,25 @@ use overload (
         fallback => 1,
         '&{}' => sub { my $self = shift; sub { $self->apply(@_) } },
     );
+}
+
+sub BUILD {
+    my ($self, $params) = @_;
+    my $operator = $self->body->operator;
+    if (ref($operator) eq 'LCore::Expression::Variable') {
+        my $symbol = $self->env->get_symbol($operator->name)
+            or die 'blah';
+        # XXX: push type info into the expression for forward checking
+        return unless $symbol->return_type;
+        if ($self->return_type) {
+            die "return type mismatch: expecting @{[ $self->return_type]} but got @{[ $symbol->return_type ]} from expression"
+                if $self->return_type ne $symbol->return_type;
+        }
+        else {
+            $self->return_type( $symbol->return_type );
+        }
+    }
+
 }
 
 sub apply {

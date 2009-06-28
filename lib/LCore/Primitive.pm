@@ -3,7 +3,8 @@ use Moose;
 
 has body => (is => "ro", isa => "CodeRef");
 
-has parameters => (is => "ro", isa => "ArrayRef[LCore::Parameter]");
+has parameters =>  (is => "ro", isa => "ArrayRef[LCore::Parameter]");
+has return_type => (is => "ro", isa => "Str");
 
 has lazy => (is => "ro", isa => "Bool", default => sub { 1 });
 
