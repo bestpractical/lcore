@@ -3,6 +3,7 @@ use Moose;
 use LCore;
 use LCore::Primitive;
 use MooseX::ClassAttribute;
+use LCore::Expression::Application;
 use Scalar::Util 'looks_like_number';
 
 extends 'LCore::Level1';
@@ -30,7 +31,8 @@ sub analyze_application {
             }
         }
     }
-    return sub {
+    return LCore::Expression::Application->new(
+        code => sub {
         my $env = shift;
         my $o = $operator->($env) or die "can't find operator";
         my @a = $o->lazy
@@ -38,7 +40,7 @@ sub analyze_application {
             : map { $_->($env) } @args;
 
         return $o->(@a);
-    }
+    });
 
 }
 

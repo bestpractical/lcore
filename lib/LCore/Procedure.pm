@@ -2,7 +2,7 @@ package LCore::Procedure;
 use Moose;
 
 has env => (is => "ro", isa => "LCore::Env");
-has body => (is => "ro", isa => "CodeRef");
+has body => (is => "ro", isa => "CodeRef|LCore::Expression");
 has parameters => (is => "ro", isa => "ArrayRef");
 has lazy => (is => "ro", isa => "Bool", default => sub { 1 });
 
