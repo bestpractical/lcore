@@ -17,4 +17,5 @@ level 2.2:
   - currying
 
 level 3:
+  - type classes
   - custom types

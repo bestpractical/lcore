@@ -5,6 +5,25 @@ use MooseX::ClassAttribute;
 use LCore::Expression::Variable;
 use LCore::Expression::SelfEvaluating;
 
+=head1 NAME
+
+LCore::Env - 
+
+=head1 SYNOPSIS
+
+
+
+=head1 DESCRIPTION
+
+This is the environment class for a lcore runtime.  the root
+environment object of an lcore evaluator serves as the repository of
+language features, including expressions supported and primitive
+functions available.  L<LCore::Env> basically is nothing but an
+evaluator.  there is no function defined by default.  See
+L<LCore::Level1> and L<LCore::Level2>.
+
+=cut
+
 class_has 'analyzers' => (
     is => 'ro',
     isa => 'ArrayRef',

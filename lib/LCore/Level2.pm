@@ -11,6 +11,11 @@ extends 'LCore::Level1';
 sub analyze_application {
     my ($self, $exp) = @_;
 
+    # XXX: analyze_application should be made into
+    # LCore::Expression::Application, with custom features (like what
+    # we override/add here) made available via traits, which
+    # LCore::Env->analyzers can then use as expression class factory.
+
     return unless ref($exp) eq 'ARRAY';
 
     my ($op, @exp) = @$exp;

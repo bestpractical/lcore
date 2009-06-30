@@ -1,6 +1,23 @@
 package LCore::Primitive;
 use Moose;
 
+=head1 NAME
+
+LCore::Primitive - primitive functions
+
+=head1 SYNOPSIS
+
+
+
+=head1 DESCRIPTION
+
+This class represents primitive functions, whre C<body> contains the
+native perl code.  This is pretty much the same as
+L<LCore::Procedure>, and should probably have the duplicated
+attributes refactored into Applicable role.
+
+=cut
+
 has body => (is => "ro", isa => "CodeRef");
 
 has parameters =>  (is => "ro", isa => "ArrayRef[LCore::Parameter]");
