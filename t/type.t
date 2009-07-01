@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 use LCore::Level2;
 use LCore::Parameter;
 use Data::Dumper;$Data::Dumper::Deparse=1;
@@ -40,3 +40,14 @@ my $proc = LCore::Procedure->new( { env => $l->env,
 
 is($proc->return_type, 'Num', "return type derived");
 
+$l->env->set_symbol('hello' => LCore::Primitive->new
+                        ( body => sub {
+                              return 'hello',
+                          },
+                          parameters => [],
+                          return_type => 'Str',
+                      ));
+
+throws_ok {
+    $l->analyze_it(q{(* 5 (hello))});
+} qr/type mismatch for '\*' parameters 2: expecting Num, got Str/;
