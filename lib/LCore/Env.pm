@@ -4,6 +4,7 @@ use MooseX::AttributeHelpers;
 use MooseX::ClassAttribute;
 use LCore::Expression::Variable;
 use LCore::Expression::SelfEvaluating;
+use LCore::Expression::Application;
 
 =head1 NAME
 
@@ -82,6 +83,8 @@ sub analyze_variable {
 
 sub analyze_application {
     my ($self, $exp) = @_;
+
+    return LCore::Expression::Application->analyze($self, $exp);
 
     return unless ref($exp) eq 'ARRAY';
 

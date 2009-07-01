@@ -36,7 +36,8 @@ sub analyze_application {
             }
         }
     }
-    return LCore::Expression::Application->new(
+    return LCore::Expression::Application->new_with_traits(
+        traits => ['LCore::TypedExpression'],
         operator => $operator,
         operands => \@args,
         code => sub {
