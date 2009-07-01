@@ -16,22 +16,17 @@ use overload (
 
 sub BUILD {
     my ($self, $params) = @_;
-    return unless $self->body->does('LCore::TypedExpression');
-    return unless ref($self->body) && $self->body->isa('LCore::Expression::Application');
-    # this belongs to "guess type from LCore::Expression::Application"
-    my $operator = $self->body->operator;
-    if (ref($operator) eq 'LCore::Expression::Variable') {
-        my $symbol = $self->env->get_symbol($operator->name)
-            or die 'blah';
-        # XXX: push type info into the expression for forward checking
-        return unless $symbol->return_type;
-        if ($self->return_type) {
-            die "return type mismatch: expecting @{[ $self->return_type]} but got @{[ $symbol->return_type ]} from expression"
-                if $self->return_type ne $symbol->return_type;
-        }
-        else {
-            $self->return_type( $symbol->return_type );
-        }
+    return unless $self->body->can('get_return_type');
+
+    my $return_type = $self->body->get_return_type($self->env)
+        or return;
+
+    if ($self->return_type) {
+        die "return type mismatch: expecting @{[ $self->return_type]} but got @{[ $return_type ]} from expression"
+            if $self->return_type ne $return_type;
+    }
+    else {
+        $self->return_type( $return_type );
     }
 
 }
