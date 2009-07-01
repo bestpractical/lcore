@@ -85,24 +85,6 @@ sub analyze_application {
     my ($self, $exp) = @_;
 
     return LCore::Expression::Application->analyze($self, $exp);
-
-    return unless ref($exp) eq 'ARRAY';
-
-    my ($op, @exp) = @$exp;
-    my $operator = $self->analyze($op);
-    my @args = map { $self->analyze($_) } @exp;
-
-    return sub {
-        my $env = shift;
-        my $o = $operator->($env) or die "can't find operator";
-
-        my @a = $o->lazy
-            ? map { ref $_ ? LCore::Thunk->new( env => $env, delayed => $_ ): $_ } @args
-            : map { $_->($env) } @args;
-
-        return $o->(@a);
-    }
-
 }
 
 sub analyze {

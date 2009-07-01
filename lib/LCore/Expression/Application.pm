@@ -1,6 +1,5 @@
 package LCore::Expression::Application;
 use Moose;
-with 'MooseX::Traits';
 extends 'LCore::Expression';
 
 has operator => (is => "ro", isa => "LCore::Expression|CodeRef");
@@ -14,11 +13,17 @@ sub analyze {
 
     my ($op, @exp) = @$exp;
     my $operator = $env->analyze($op);
-    my @args = map { $env->analyze($_) } @exp;
 
+    return $class->mk_expression( $env, $operator,
+                                  [map { $env->analyze($_) } @exp] );
+}
+
+sub mk_expression {
+    my ($class, $env, $operator, $operands) = @_;
+    my @args = @$operands;
     return $class->new(
         operator => $operator,
-        operands => \@args,
+        operands => $operands,
         code     => sub {
             my $env = shift;
             my $o = $operator->($env) or die "can't find operator";

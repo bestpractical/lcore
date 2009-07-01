@@ -1,5 +1,6 @@
 package LCore::Expression;
 use Moose;
+with 'MooseX::Traits';
 
 =head1 NAME
 

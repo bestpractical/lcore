@@ -1,5 +1,6 @@
 package LCore::TypedExpression;
 use Moose::Role;
+use Scalar::Util 'looks_like_number';
 
 sub get_return_type {
     my ($self, $env) = @_;
@@ -13,6 +14,9 @@ sub get_return_type {
                 or die 'blah';
             return $symbol->return_type;
         }
+    }
+    elsif ($self->isa('LCore::Expression::SelfEvaluating')) {
+        return looks_like_number $self->value ? 'Num' : 'Str';
     }
 }
 
