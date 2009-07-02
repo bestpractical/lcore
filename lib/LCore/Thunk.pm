@@ -8,15 +8,14 @@ has is_evaluated => (is => "rw", isa => "Bool");
 has evaluated_result => (is => "rw");
 
 has delayed => (is => "ro");#, isa => "CodeRef");
-BEGIN {
+
 use overload (
-        fallback => 1,
-        '&{}' => sub { my $self = shift; sub { $self->force } },
-        map {
-            $_ => \&force
-        } qw( bool "" 0+ )
-    );
-}
+    fallback => 1,
+    '&{}' => sub { my $self = shift; sub { $self->force } },
+    map {
+        $_ => \&force
+    } qw( bool "" 0+ )
+);
 
 sub force {
     my ($self) = @_;
