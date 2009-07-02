@@ -7,12 +7,10 @@ has parameters => (is => "ro", isa => "ArrayRef");
 has return_type => (is => "rw", isa => "Str");
 has lazy => (is => "ro", isa => "Bool", default => sub { 1 });
 
-BEGIN {
 use overload (
-        fallback => 1,
-        '&{}' => sub { my $self = shift; sub { $self->apply(@_) } },
-    );
-}
+    fallback => 1,
+    '&{}' => sub { my $self = shift; sub { $self->apply(@_) } },
+);
 
 sub BUILD {
     my ($self, $params) = @_;

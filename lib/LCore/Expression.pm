@@ -50,12 +50,10 @@ features.
 
 has code => (is => "ro", isa => "CodeRef");
 
-BEGIN {
 use overload (
-        fallback => 1,
-        '&{}' => sub { my $self = shift; sub { $self->execute(@_) } },
-    );
-}
+    fallback => 1,
+    '&{}' => sub { my $self = shift; sub { $self->execute(@_) } },
+);
 
 sub execute {
     my $self = shift;
