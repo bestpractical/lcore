@@ -5,7 +5,7 @@ has env => (is => "ro", isa => "LCore::Env");
 has body => (is => "ro", isa => "CodeRef|LCore::Expression");
 has parameters => (is => "ro", isa => "ArrayRef");
 has return_type => (is => "rw", isa => "Str");
-has lazy => (is => "ro", isa => "Bool", default => sub { 1 });
+has lazy => (is => "ro", isa => "Bool", default => 1);
 
 use overload (
     fallback => 1,
