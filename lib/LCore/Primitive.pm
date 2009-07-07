@@ -1,6 +1,8 @@
 package LCore::Primitive;
 use Moose;
 
+with 'LCore::Function';
+
 =head1 NAME
 
 LCore::Primitive - primitive functions
@@ -12,24 +14,11 @@ LCore::Primitive - primitive functions
 =head1 DESCRIPTION
 
 This class represents primitive functions, whre C<body> contains the
-native perl code.  This is pretty much the same as
-L<LCore::Procedure>, and should probably have the duplicated
-attributes refactored into Applicable role.
+native perl code.
 
 =cut
 
 has body => (is => "ro", isa => "CodeRef");
-
-has parameters =>  (is => "ro", isa => "ArrayRef[LCore::Parameter]");
-has return_type => (is => "ro", isa => "Str");
-
-has lazy => (is => "ro", isa => "Bool", default => 1);
-
-
-use overload (
-    fallback => 1,
-    '&{}' => sub { my $self = shift; sub { $self->apply(@_) } },
-);
 
 sub apply {
     my $self = shift;

@@ -1,19 +1,15 @@
 package LCore::Procedure;
 use Moose;
 
+with 'LCore::Function';
+
 has env => (is => "ro", isa => "LCore::Env");
 has body => (is => "ro", isa => "CodeRef|LCore::Expression");
-has parameters => (is => "ro", isa => "ArrayRef");
-has return_type => (is => "rw", isa => "Str");
-has lazy => (is => "ro", isa => "Bool", default => 1);
-
-use overload (
-    fallback => 1,
-    '&{}' => sub { my $self = shift; sub { $self->apply(@_) } },
-);
 
 sub BUILD {
     my ($self, $params) = @_;
+    # if the lambda body has a return type we can derive, we would
+    # ensure that works with the defined one here
     return unless $self->body->can('get_return_type');
 
     my $return_type = $self->body->get_return_type($self->env)

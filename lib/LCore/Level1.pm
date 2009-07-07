@@ -52,7 +52,7 @@ sub BUILD {
                           ( lazy => 0,
                             body => sub {
                                 my ($func, $list) = @_;
-                                return [map {$func->($_)} @$list];
+                                return [map {$func->apply($_)} @$list];
                             }));
 }
 

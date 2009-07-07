@@ -32,7 +32,7 @@ sub mk_expression {
                 ? map { ref $_ ? LCore::Thunk->new( env => $env, delayed => $_ ): $_ } @args
                 : map { $_->($env) } @args;
 
-            return $o->(@a);
+            return $o->apply(@a);
         });
 }
 
