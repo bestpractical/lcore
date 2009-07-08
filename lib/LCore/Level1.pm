@@ -2,6 +2,7 @@ package LCore::Level1;
 use Moose;
 use LCore;
 use LCore::Primitive;
+use LCore::Expression::Lambda;
 use MooseX::ClassAttribute;
 
 extends 'LCore::Env';
@@ -14,24 +15,8 @@ class_has '+analyzers' => (
 
 sub analyze_lambda {
     my ($self, $exp) = @_;
-    return unless ref($exp) eq 'ARRAY' && $exp->[0] eq 'lambda';
 
-    my (undef, $params, $body) = @$exp;
-
-    die 'param error' unless ref($params) eq 'ARRAY';
-
-    my $lambda_body = $self->analyze($body);
-
-    return sub {
-        my $env = shift;
-        LCore::Procedure->new( { env => $env,
-                                 body => $lambda_body,
-                                 parameters => $params } );
-    };
-
-    die Dumper($exp); use Data::Dumper;
-
-
+    return LCore::Expression::Lambda->analyze($self, $exp);
 }
 
 sub BUILD {

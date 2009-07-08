@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-use Test::More tests => 5;
+use Test::More tests => 8;
 use LCore::Level2;
 use LCore::Parameter;
 use Data::Dumper;$Data::Dumper::Deparse=1;
@@ -50,4 +50,16 @@ $l->env->set_symbol('hello' => LCore::Primitive->new
 
 throws_ok {
     $l->analyze_it(q{(* 5 (hello))});
+} qr/type mismatch for '\*' parameters 2: expecting Num, got Str/;
+
+throws_ok {
+    $l->analyze_it(q{(* 5 (lambda (x) x))});
+} qr/type mismatch for '\*' parameters 2: expecting Num, got Function/;
+
+throws_ok {
+    $l->analyze_it(q{(* 5 ((lambda (x) "hi") 9))});
+} qr/type mismatch for '\*' parameters 2: expecting Num, got Str/;
+
+throws_ok {
+    $l->analyze_it(q{(* 5 ((lambda (x) x) "hi"))});
 } qr/type mismatch for '\*' parameters 2: expecting Num, got Str/;

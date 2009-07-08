@@ -18,6 +18,16 @@ sub analyze_application {
         ->name->analyze($self, $exp);
 }
 
+sub analyze_lambda {
+    my ($self, $exp) = @_;
+
+    my $meta = LCore::Expression::Lambda->meta;
+    return $meta->create_anon_class
+        ( superclasses => [ $meta->name ],
+          roles => [ 'LCore::TypedExpression' ] )
+        ->name->analyze($self, $exp);
+}
+
 sub analyze_self_evaluating {
     my ($self, $exp) = @_;
     return if ref($exp);
