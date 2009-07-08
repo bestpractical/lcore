@@ -4,37 +4,39 @@ use LCore;
 use LCore::Primitive;
 use MooseX::ClassAttribute;
 use LCore::Expression::Application;
+use LCore::Expression::Lambda;
 
 extends 'LCore::Level1';
+
+sub typed_expression {
+    my ($self, $expression_class, $specialized) = @_;
+    my $class = "LCore::Expression::".$expression_class;
+    # XXX: cleanup
+    my $role = $specialized ? "LCore::Expression::Typed".$expression_class : 'LCore::TypedExpression';
+    return $class->meta->create_anon_class
+        ( superclasses => [ $class ],
+          roles        => [ $role ] )
+        ->name;
+}
 
 sub analyze_application {
     my ($self, $exp) = @_;
 
-    # make expression class with traits into common factory
-    my $meta = LCore::Expression::Application->meta;
-    return $meta->create_anon_class
-        ( superclasses => [ $meta->name ],
-          roles => [ 'LCore::Expression::TypedApplication' ] )
-        ->name->analyze($self, $exp);
+    return $self->typed_expression("Application", 1)->analyze($self, $exp);
 }
 
 sub analyze_lambda {
     my ($self, $exp) = @_;
 
-    my $meta = LCore::Expression::Lambda->meta;
-    return $meta->create_anon_class
-        ( superclasses => [ $meta->name ],
-          roles => [ 'LCore::TypedExpression' ] )
-        ->name->analyze($self, $exp);
+    return $self->typed_expression("Lambda")->analyze($self, $exp);
 }
 
 sub analyze_self_evaluating {
     my ($self, $exp) = @_;
     return if ref($exp);
 
-    return LCore::Expression::SelfEvaluating->new_with_traits
-        ( traits => ['LCore::TypedExpression'],
-          code => sub { $exp },
+    return $self->typed_expression("SelfEvaluating")->new
+        ( code  => sub { $exp },
           value => $exp );
 }
 
