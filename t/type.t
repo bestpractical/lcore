@@ -60,6 +60,11 @@ throws_ok {
     $l->analyze_it(q{(* 5 ((lambda (x) "hi") 9))});
 } qr/type mismatch for '\*' parameters 2: expecting Num, got Str/;
 
+TODO: {
+    local $TODO = 'make lambda derive types from argument';
+
 throws_ok {
     $l->analyze_it(q{(* 5 ((lambda (x) x) "hi"))});
 } qr/type mismatch for '\*' parameters 2: expecting Num, got Str/;
+
+};
