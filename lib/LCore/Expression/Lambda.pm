@@ -1,5 +1,6 @@
 package LCore::Expression::Lambda;
 use Moose;
+use LCore::Procedure;
 use LCore::Parameter;
 
 extends 'LCore::Expression';

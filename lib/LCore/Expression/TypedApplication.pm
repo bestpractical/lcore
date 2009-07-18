@@ -7,7 +7,7 @@ before 'mk_expression' => sub {
 
     my ($func, $name) = $self->get_procedure($env, $operator) or return;
 
-    my @args = @$operands;
+    my @args = $self->get_operands($func, $operands);
 
     if (my $params = $func->parameters) {
         die "argument number mismatch for $name" if $#{$params} ne $#args;
