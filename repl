@@ -1,0 +1,36 @@
+#!/usr/bin/perl -w
+use strict;
+use LCore;
+use LCore::Level2;
+my $l = LCore->new( env => LCore::Level2->new );
+++$|;
+my $running = 1;
+while ($running) {
+    print "lcore> ";
+    my $str = <>;
+    defined $str or last;
+    chomp $str;
+    length $str or next;
+
+    my $print_type;
+
+    if ($str =~ m/^:q/) {
+        $running = 0;
+        next;
+    }
+    if ($str =~ s/^:t\s*//) {
+        $print_type = 1;
+    }
+
+    my $exp = eval { $l->analyze_it($str) };
+    if ($@) {
+        print "ERR: $@".$/;
+        next;
+    }
+    if ($print_type) {
+        print $exp->get_return_type($l->env).$/;
+    }
+    else {
+        print $exp->($l->env).$/;
+    }
+}
