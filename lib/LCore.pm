@@ -3,6 +3,7 @@ use Moose;
 
 use LCore::Env;
 use LCore::Thunk;
+use LCore::Exception;
 use Data::SExpression qw(cons consp);
 use UNIVERSAL::isa;
 my $global_env = LCore::Env->new();

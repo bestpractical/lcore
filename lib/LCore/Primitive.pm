@@ -1,5 +1,6 @@
 package LCore::Primitive;
 use Moose;
+use LCore::Exception;
 
 with 'LCore::Function';
 
@@ -22,7 +23,15 @@ has body => (is => "ro", isa => "CodeRef");
 
 sub apply {
     my $self = shift;
-    goto $self->body;
+    my $ret = eval { $self->body->(@_) };
+    my $e;
+    if ( $e = LCore::Exception->caught() ) {
+        $e->rethrow;
+    }
+    elsif ( $e = Exception::Class->caught() ) {
+        LCore::Exception::Runtime->throw( message => $@ );
+    }
+    return $ret;
 }
 
 __PACKAGE__->meta->make_immutable;
