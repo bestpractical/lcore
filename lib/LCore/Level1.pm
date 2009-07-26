@@ -33,12 +33,35 @@ sub BUILD {
                               return [@_];
                           }));
 
+    # (a -> b) -> [a] -> [b]
     $self->set_symbol('map' => LCore::Primitive->new
                           ( lazy => 0,
                             body => sub {
                                 my ($func, $list) = @_;
                                 return [map {$func->apply($_)} @$list];
                             }));
+
+    $self->set_symbol('and' => LCore::Primitive->new
+                          ( body => sub {
+                                my $i = 0;
+                                for (@_) {
+                                    if (!$_) {
+                                        return 0;
+                                    }
+                                }
+                                return 1;
+                            }));
+
+    $self->set_symbol('or' => LCore::Primitive->new
+                          ( body => sub {
+                                for (@_) {
+                                    if ($_) {
+                                        return 1;
+                                    }
+                                }
+                                return 0;
+                            }));
+
 }
 
 __PACKAGE__->meta->make_immutable;
