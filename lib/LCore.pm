@@ -1,11 +1,22 @@
 package LCore;
 use Moose;
 
+use 5.008;
+our $VERSION = '0.01';
+
 use LCore::Env;
 use LCore::Thunk;
 use LCore::Exception;
 use Data::SExpression qw(cons consp);
 use UNIVERSAL::isa;
+
+=head1 NAME
+
+LCore - An embedded lisp in pure perl
+
+=cut
+
+
 my $global_env = LCore::Env->new();
 
 my $ds = Data::SExpression->new({use_symbol_class=>1,
@@ -31,5 +42,19 @@ sub analyze_it {
 
 __PACKAGE__->meta->make_immutable;
 no Moose;
+
+=head1 AUTHOR
+
+CL Kao <clkao@bestpractical.com>
+
+=head1 LICENSE
+
+Copyright 2009 Best Practical Solutions, LLC
+
+This module may be distributed under the same terms as Perl itself.
+
+=cut
+
+
 1;
 
