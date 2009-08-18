@@ -12,10 +12,8 @@ around 'get_operands' => sub {
         die 'slurpy arg should be arrayref'
             unless $params[-1]->type =~ m/^ArrayRef/;
         if ($#args == $#params) {
-            return @args unless UNIVERSAL::can($args[-1], 'get_return_type');
-            if (my $incoming = $args[-1]->get_return_type($env)) {
-                return @args if $incoming =~ m/^ArrayRef/;
-            }
+            my $incoming = $self->_get_arg_return_type($env, $args[-1]);
+            return @args if !$incoming || $incoming =~ m/^ArrayRef/;
         }
         if ($#args >= $#params) {
             my @arraify = @args[$#params..$#args];
@@ -38,22 +36,26 @@ before 'mk_expression' => sub {
 
     my @args = $self->get_operands($env, $func, $operands);
 
-    if (my $params = $func->parameters) {
-        die "argument number mismatch for $name" if $#{$params} ne $#args;
-        for (0..$#args) {
-            my $expected = $params->[$_]->type or next;
-            next unless UNIVERSAL::can($args[$_], 'get_return_type');
-            if (my $incoming = $args[$_]->get_return_type($env)) {
-                ($incoming, $expected) = map { find_type_constraint($_) || $_ } ($incoming, $expected);
-                warn "not registered $incoming" unless ref($incoming);
-                warn "not registered $expected" unless ref($expected);
-                die "type mismatch for '$name' parameters @{[ 1 + $_ ]}: expecting $expected, got $incoming"
-                    unless $incoming->is_a_type_of($expected);
+    my $params = $func->parameters or return;
 
-            }
-        }
+    die "argument number mismatch for $name" if $#{$params} ne $#args;
+    for (0..$#args) {
+        my $expected = $params->[$_]->type or next;
+        my $incoming = $self->_get_arg_return_type($env, $args[$_]) or next;
+
+        ($incoming, $expected) = map { find_type_constraint($_) || $_ } ($incoming, $expected);
+        warn "not registered $incoming" unless ref($incoming);
+        warn "not registered $expected" unless ref($expected);
+        die "type mismatch for '$name' parameters @{[ 1 + $_ ]}: expecting $expected, got $incoming"
+            unless $incoming->is_a_type_of($expected);
     }
 };
+
+sub _get_arg_return_type {
+    my ($self, $env, $arg) = @_;
+    return unless UNIVERSAL::can($arg, 'get_return_type');
+    return $arg->get_return_type($env);
+}
 
 no Moose;
 1;
