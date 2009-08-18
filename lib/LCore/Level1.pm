@@ -49,7 +49,8 @@ sub BUILD {
                         ));
 
     $self->set_symbol('and' => LCore::Primitive->new
-                          ( body => sub {
+                          ( lazy => 0, slurpy => 1,
+                            body => sub {
                                 my $i = 0;
                                 for (@{$_[0]}) {
                                     if (!$_) {
@@ -62,7 +63,8 @@ sub BUILD {
                             return_type => 'Bool' ));
 
     $self->set_symbol('or' => LCore::Primitive->new
-                          ( body => sub {
+                          ( lazy => 0, slurpy => 1,
+                            body => sub {
                                 for (@{$_[0]}) {
                                     if ($_) {
                                         return 1;
