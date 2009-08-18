@@ -2,12 +2,37 @@ package LCore::Expression::TypedApplication;
 use Moose::Role;
 with 'LCore::TypedExpression';
 
+around 'get_operands' => sub {
+    my ($next, $self, $env, $proc, $operands) = @_;
+    my @args = $self->$next($env, $proc, $operands);
+
+    if ($proc->parameters && $proc->slurpy) {
+        # auto arraify
+        my @params = @{$proc->parameters};
+        die 'slurpy arg should be arrayref'
+            unless $params[-1]->type =~ m/^ArrayRef/;
+        if ($#args == $#params) {
+            return @args unless UNIVERSAL::can($args[-1], 'get_return_type');
+            if (my $incoming = $args[-1]->get_return_type($env)) {
+                return @args if $incoming =~ m/^ArrayRef/;
+            }
+        }
+        if ($#args >= $#params) {
+            my @arraify = @args[$#params..$#args];
+            my $x = sub { my $env = shift; [map { $_->($env) } @arraify] };
+            splice(@args, $#params);
+            push @args, $x;
+        }
+    }
+    return @args;
+};
+
 before 'mk_expression' => sub {
     my ($self, $env, $operator, $operands) = @_;
 
     my ($func, $name) = $self->get_procedure($env, $operator) or return;
 
-    my @args = $self->get_operands($func, $operands);
+    my @args = $self->get_operands($env, $func, $operands);
 
     if (my $params = $func->parameters) {
         die "argument number mismatch for $name" if $#{$params} ne $#args;

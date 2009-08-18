@@ -7,7 +7,7 @@ sub get_procedure {
 
     if (ref($expression) eq 'LCore::Expression::Variable') {
         my $name = $expression->name;
-        my $func = $env->get_symbol($name)
+        my $func = $env->get_value($name)
             or die "'$name' not defined";
         return ($func, $name);
     }

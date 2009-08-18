@@ -28,7 +28,8 @@ sub analyze {
 }
 
 sub get_operands {
-    my ($class, $proc, $operands) = @_;
+    my ($class, $env, $proc, $operands) = @_;
+
     return @$operands if ref($operands) eq 'ARRAY';
 
     my $params = $proc->parameters or die "params by name unavailable for functions not defined with params: $proc";
@@ -44,7 +45,7 @@ sub mk_expression {
             my $env = shift;
             my $o = $operator->($env) or die "can't find operator";
 
-            my @args = $class->get_operands($o, $operands);
+            my @args = $class->get_operands($env, $o, $operands);
 
             my @a = $o->lazy
                 ? map { ref $_ ? LCore::Thunk->new( env => $env, delayed => $_ ): $_ } @args
