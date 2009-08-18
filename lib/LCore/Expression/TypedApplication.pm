@@ -27,6 +27,10 @@ around 'get_operands' => sub {
     return @args;
 };
 
+use Moose::Util::TypeConstraints qw(type find_type_constraint);
+
+type 'Function';
+
 before 'mk_expression' => sub {
     my ($self, $env, $operator, $operands) = @_;
 
@@ -40,8 +44,12 @@ before 'mk_expression' => sub {
             my $expected = $params->[$_]->type or next;
             next unless UNIVERSAL::can($args[$_], 'get_return_type');
             if (my $incoming = $args[$_]->get_return_type($env)) {
+                ($incoming, $expected) = map { find_type_constraint($_) || $_ } ($incoming, $expected);
+                warn "not registered $incoming" unless ref($incoming);
+                warn "not registered $expected" unless ref($expected);
                 die "type mismatch for '$name' parameters @{[ 1 + $_ ]}: expecting $expected, got $incoming"
-                    if $incoming ne $expected;
+                    unless $incoming->is_a_type_of($expected);
+
             }
         }
     }
