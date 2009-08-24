@@ -10,7 +10,8 @@ test_requires (Test::More => 0,
 
 requires ( Data::SExpression => 0,
 			Moose => 0,
-			MooseX::Traits => 0.06
+			MooseX::Traits => 0.06,
+			MooseX::ClassAttribute => 0,
 		);
 
 
