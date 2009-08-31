@@ -18,7 +18,7 @@ sub analyze {
 
     my $lambda_body = $env->analyze($body);
 
-    $params = [ map { LCore::Parameter->new( name => "$_" ) } @$params ];
+    $params = [ map { LCore::Parameter->new( { name => "$_" } ) } @$params ];
 
     my $function = LCore::Procedure->new( { env => $env,
                                             body => $lambda_body,

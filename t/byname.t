@@ -10,7 +10,7 @@ $l->env->set_symbol('/' => LCore::Primitive->new
                         ( body => sub {
                               return $_[0] / $_[1];
                           },
-                          parameters => [ map { LCore::Parameter->new( name => $_, type => 'Num' ) } ('x', 'y') ],
+                          parameters => [ map { LCore::Parameter->new({ name => $_, type => 'Num' }) } ('x', 'y') ],
                       ));
 
 is_deeply($l->analyze_it(q{(/ 5 2)})->($l->env), 2.5);

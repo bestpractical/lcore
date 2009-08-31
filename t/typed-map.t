@@ -17,7 +17,7 @@ $l->env->set_symbol('*' => LCore::Primitive->new
 
 my $proc = LCore::Procedure->new( { env => $l->env,
                                     body => $l->analyze_it(q{(* n n)}),
-                                    parameters => ['n'] } );
+                                    parameters => [LCore::Parameter->new({ name => 'n', type => 'Num' } )] } );
 
 is($proc->return_type, 'Num', "return type derived");
 
