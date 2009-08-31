@@ -75,6 +75,13 @@ sub BUILD {
                             parameters => [ LCore::Parameter->new({ name => 'conditions', type => 'ArrayRef[Bool]' })],
                             return_type => 'Bool'));
 
+    $self->set_symbol('not' => LCore::Primitive->new
+                          ( lazy => 0,
+                            body => sub {
+                                return !$_[0];
+                            },
+                            parameters => [ LCore::Parameter->new({ name => 'condition', type => 'Bool' })],
+                            return_type => 'Bool' ));
 }
 
 __PACKAGE__->meta->make_immutable;
