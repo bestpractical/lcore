@@ -8,34 +8,43 @@ use LCore::Expression::Lambda;
 
 extends 'LCore::Level1';
 
+sub _function_matches_types {
+    my ($self, $func, $types, $return_type, $strict) = @_;
+    return unless $func->return_type->is_a_type_of( $return_type );
+    return if $#{$types} > $#{$func->parameters};
+    return if $strict && $#{$types} < $#{$func->parameters};
+
+    my $i = 0;
+    for (@$types) {
+        $func->parameters->[$i]->type->is_a_type_of( $_ ) or return;
+    }
+    return 1;
+}
+
+sub _function_matches_any_type {
+    my ($self, $func, $type, $return_type) = @_;
+    for (@{$func->parameters}) {
+        return 1 if $_->type->is_a_type_of( $type );
+        # match for parameterized type of ArrayRef
+        if ($_->type->isa('Moose::Meta::TypeConstraint::Parameterized')) {
+            return 1 if $_->type->parent->name eq 'ArrayRef' &&
+                        $_->type->type_parameter->is_a_type_of( $type );
+        }
+    }
+    return 0;
+}
+
 sub find_functions_by_type {
-    my ($self, $expected_param_types, $expected_return_type) = @_;
+    my ($self, $param_types, $return_type) = @_;
     my $result = {};
     my $func = $self->all_functions;
     while (my ($name, $func) = each %$func) {
         next unless $func->parameters && $func->return_type;
-        $func->return_type->is_a_type_of( $expected_return_type ) or next;
-        if (ref $expected_param_types eq 'ARRAY') { # positional match
-            my $i = 0;
-            next if $#{$expected_param_types} > $#{$func->parameters};
-            my $found = 1;
-            for (@$expected_param_types) {
-                $func->parameters->[$i]->type->is_a_type_of( $_ ) or $found = 0;
-            }
-            next unless $found;
+        if (ref $param_types eq 'ARRAY') { # positional match
+            next unless $self->_function_matches_types($func, $param_types, $return_type);
         }
         else { # match any param
-            my $found = 0;
-            for (@{$func->parameters}) {
-                $found = 1 if $_->type->is_a_type_of( $expected_param_types );
-                # match for parameterized type of ArrayRef
-                if ($_->type->isa('Moose::Meta::TypeConstraint::Parameterized')) {
-                    $found = 1 if
-                        $_->type->parent->name eq 'ArrayRef' &&
-                            $_->type->type_parameter->is_a_type_of( $expected_param_types );
-                }
-            }
-            next unless $found;
+            next unless $self->_function_matches_any_type($func, $param_types, $return_type);
         }
         $result->{$name} = $func;
     }
