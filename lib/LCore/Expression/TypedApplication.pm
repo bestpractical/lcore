@@ -47,7 +47,8 @@ before 'mk_expression' => sub {
 sub _get_arg_return_type {
     my ($self, $env, $arg) = @_;
     return unless UNIVERSAL::can($arg, 'get_return_type');
-    return Moose::Util::TypeConstraints::find_or_create_isa_type_constraint( $arg->get_return_type($env) );
+    my $r = $arg->get_return_type($env) or return;
+    return Moose::Util::TypeConstraints::find_or_create_isa_type_constraint( $r );
 }
 
 no Moose;
