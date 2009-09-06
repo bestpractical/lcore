@@ -9,8 +9,7 @@ use LCore::Expression::Lambda;
 extends 'LCore::Level1';
 
 sub _function_matches_types {
-    my ($self, $func, $types, $return_type, $strict) = @_;
-    return unless $func->return_type->is_a_type_of( $return_type );
+    my ($self, $func, $types, $strict) = @_;
     return if $#{$types} > $#{$func->parameters};
     return if $strict && $#{$types} < $#{$func->parameters};
 
@@ -22,7 +21,7 @@ sub _function_matches_types {
 }
 
 sub _function_matches_any_type {
-    my ($self, $func, $type, $return_type) = @_;
+    my ($self, $func, $type) = @_;
     for (@{$func->parameters}) {
         return 1 if $_->type->is_a_type_of( $type );
         # match for parameterized type of ArrayRef
@@ -39,12 +38,16 @@ sub find_functions_by_type {
     my $result = {};
     my $func = $self->all_functions;
     while (my ($name, $func) = each %$func) {
-        next unless $func->parameters && $func->return_type;
+        next unless $func->parameters;
+        if ($return_type) {
+            next unless $func->return_type;
+            next unless $func->return_type->is_a_type_of( $return_type );
+        }
         if (ref $param_types eq 'ARRAY') { # positional match
-            next unless $self->_function_matches_types($func, $param_types, $return_type);
+            next unless $self->_function_matches_types($func, $param_types);
         }
         else { # match any param
-            next unless $self->_function_matches_any_type($func, $param_types, $return_type);
+            next unless $self->_function_matches_any_type($func, $param_types);
         }
         $result->{$name} = $func;
     }
