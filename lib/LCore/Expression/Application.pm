@@ -8,6 +8,14 @@ has operator => (is => "ro", isa => "LCore::Expression|CodeRef");
 # details with get_operands.
 has operands => (is => "ro", isa => "HashRef|ArrayRef[LCore::Expression|CodeRef]");
 
+sub to_hash {
+    my ($self) = shift;
+    return { type => 'application',
+             operator => $self->operator->to_hash,
+             operands => [ map { $_->to_hash } @{$self->operands } ],
+         };
+}
+
 sub analyze {
     my ($class, $env, $exp) = @_;
 
