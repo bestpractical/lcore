@@ -9,6 +9,10 @@ use overload (
     '""' => sub { my $self = shift; $self->name },
 );
 
+sub to_hash {
+    my ($self) = shift;
+    return { name => $self->name, type => $self->type };
+}
 
 __PACKAGE__->meta->make_immutable;
 no Moose;
