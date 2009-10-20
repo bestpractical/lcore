@@ -16,7 +16,19 @@ around 'get_operands' => sub {
             return @args if !$incoming || $incoming =~ m/^ArrayRef/;
         }
         if ($#args >= $#params) {
+            my ($inner_type) = map { Moose::Util::TypeConstraints::find_or_create_isa_type_constraint($_) }
+                $params[-1]->type =~ m/ArrayRef\[(.*)\]/;
             my @arraify = @args[$#params..$#args];
+            # XXX refactor to share with the type checking in mk_expression
+            if ($inner_type) {
+                for (0..$#arraify) {
+                    my $incoming = $self->_get_arg_return_type($env, $arraify[$_])
+                        or next;
+                    die "type mismatch for array element @{[ 1 + $_ ]}: expecting $inner_type, got $incoming"
+                        unless $incoming->is_a_type_of($inner_type);
+                }
+            }
+
             my $x = sub { my $env = shift; [map { $_->($env) } @arraify] };
             splice(@args, $#params);
             push @args, $x;
