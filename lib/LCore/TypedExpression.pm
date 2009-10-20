@@ -33,7 +33,10 @@ sub get_return_type {
         return 'Function';
     }
     elsif ($self->isa('LCore::Expression::SelfEvaluating')) {
-        return looks_like_number $self->value ? 'Num' : 'Str';
+        return looks_like_number $self->value
+            ? m/\D/ ? 'Num'
+                    : 'Int'
+            : 'Str';
     }
 }
 
